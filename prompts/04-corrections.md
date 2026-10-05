@@ -9,3 +9,4 @@
 | 5 | Les tests existants partageaient la même IP : les rate limiters les auraient fait échouer entre eux | IP aléatoire par test | Corrigé |
 | 6 | Pas de point d'entrée d'authentification : une requête sans jeton pouvait produire une erreur 500 au lieu de 401 | `JwtAuthenticator` implémente `start()` (401 JSON) | Corrigé |
 | 7 | Composer (Packagist) inaccessible depuis l'environnement de génération : PHPUnit non exécuté | Syntaxe PHP vérifiée, migrations testées sur PostgreSQL 16 réel ; tests délégués à la CI GitHub Actions | À vérifier dans l'onglet Actions |
+| 8 | CI : `composer install` échoue car `symfony/runtime` est un plugin Composer non autorisé (et inutilisé par le code) | Suppression de la dépendance, `allow-plugins` vide (aucun plugin tiers exécuté) | Correction de la chaîne d'approvisionnement |
