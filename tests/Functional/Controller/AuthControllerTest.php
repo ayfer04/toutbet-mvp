@@ -87,7 +87,7 @@ final class AuthControllerTest extends WebTestCase
     public function testAuthenticatedApiRequiresBearerToken(): void
     {
         $client = static::createClient([], ['REMOTE_ADDR' => '10.9.' . random_int(0, 255) . '.' . random_int(1, 254)]);
-        $client->request('GET', '/api/protected-placeholder');
+        $client->request('GET', '/api/me/wagers');
         self::assertResponseStatusCodeSame(401);
     }
 }

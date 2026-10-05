@@ -23,7 +23,7 @@ final class AuthAbuseStoriesTest extends WebTestCase
     public function testTamperedBearerTokenCannotAuthenticate(): void
     {
         $client = static::createClient([], ['REMOTE_ADDR' => '10.9.' . random_int(0, 255) . '.' . random_int(1, 254)]);
-        $client->request('GET', '/api/protected-placeholder', server: [
+        $client->request('GET', '/api/me/wagers', server: [
             'HTTP_AUTHORIZATION' => 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.invalid.signature',
         ]);
 
