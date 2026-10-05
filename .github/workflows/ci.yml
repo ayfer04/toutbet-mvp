@@ -41,7 +41,7 @@ jobs:
       - name: Tests (abuse stories incluses)
         run: vendor/bin/phpunit
       - name: Analyse statique
-        run: vendor/bin/phpstan analyse --level=6 src --no-progress
+        run: vendor/bin/phpstan analyse --no-progress
       - name: Audit des dépendances
         run: composer audit
 

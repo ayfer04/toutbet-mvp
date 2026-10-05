@@ -23,6 +23,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private string $passwordHash;
 
+    /** @var list<string> */
     #[ORM\Column(type: 'json')]
     private array $roles = ['ROLE_PARIEUR'];
 
@@ -58,6 +59,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getPassword(): string { return $this->passwordHash; }
     public function setPasswordHash(string $passwordHash): void { $this->passwordHash = $passwordHash; }
     public function getRoles(): array { return array_values(array_unique(array_merge(['ROLE_PARIEUR'], $this->roles))); }
+    /** @param list<string> $roles */
     public function setRoles(array $roles): void { $this->roles = $roles; }
     public function eraseCredentials(): void {}
     public function setRefreshToken(string $hash, \DateTimeImmutable $expiresAt): void

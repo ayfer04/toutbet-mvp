@@ -1,0 +1,13 @@
+parameters:
+    level: 6
+    paths:
+        - src
+    ignoreErrors:
+        # Propriétés écrites/lues par Doctrine (hydratation) : invisibles pour PHPStan sans l'extension
+        # phpstan-doctrine, non autorisée par la spec. Exclusion limitée aux entités.
+        -
+            identifier: property.onlyWritten
+            path: src/Entity/*
+        -
+            identifier: property.unusedType
+            path: src/Entity/*

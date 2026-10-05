@@ -21,7 +21,7 @@ final class JwtAuthenticator extends AbstractAuthenticator implements Authentica
 {
     public function __construct(private readonly JwtService $jwt, private readonly UserRepository $users) {}
 
-    public function supports(Request $request): ?bool
+    public function supports(Request $request): bool
     {
         return str_starts_with((string) $request->headers->get('Authorization'), 'Bearer ');
     }
@@ -46,7 +46,7 @@ final class JwtAuthenticator extends AbstractAuthenticator implements Authentica
         return null;
     }
 
-    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
+    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
     {
         return new JsonResponse(['error' => 'Authentication required.'], Response::HTTP_UNAUTHORIZED);
     }

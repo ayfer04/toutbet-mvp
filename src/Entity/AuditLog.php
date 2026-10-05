@@ -25,6 +25,7 @@ class AuditLog
     #[ORM\Column(length: 64)]
     private string $action;
 
+    /** @var array<string, mixed> */
     #[ORM\Column(type: 'json')]
     private array $payload;
 

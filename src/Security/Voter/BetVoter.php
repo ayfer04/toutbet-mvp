@@ -30,7 +30,7 @@ final class BetVoter extends Voter
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?\Symfony\Component\Security\Core\Authorization\Voter\Vote $vote = null): bool
     {
         $user = $token->getUser();
-        if (!$user instanceof User || !$subject instanceof Bet) {
+        if (!$user instanceof User) {
             return false;
         }
 
