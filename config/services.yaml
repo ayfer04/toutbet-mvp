@@ -1,0 +1,11 @@
+parameters:
+  app.jwt_secret: '%env(APP_JWT_SECRET)%'
+
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  App\Service\JwtService:
+    arguments:
+      $secret: '%app.jwt_secret%'

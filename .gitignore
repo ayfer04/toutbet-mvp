@@ -1,0 +1,8 @@
+/vendor/
+.env.local
+.env.*.local
+.phpunit.cache/
+.phpstan.cache/
+/var/
+.idea/
+.vscode/
