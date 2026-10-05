@@ -24,4 +24,9 @@ final class UserRepository extends ServiceEntityRepository
     {
         return $this->findOneBy(['refreshTokenHash' => $hash]);
     }
+
+    public function findByEmailVerificationTokenHash(string $hash): ?User
+    {
+        return $this->findOneBy(['emailVerificationTokenHash' => $hash]);
+    }
 }

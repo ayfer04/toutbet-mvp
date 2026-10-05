@@ -35,6 +35,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $emailVerifiedAt = null;
+
+    #[ORM\Column(length: 64, nullable: true)]
+    private ?string $emailVerificationTokenHash = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $emailVerificationExpiresAt = null;
+
     public function __construct(string $id, string $email, string $passwordHash)
     {
         $this->id = $id;
@@ -63,4 +72,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
     public function getRefreshTokenHash(): ?string { return $this->refreshTokenHash; }
     public function getRefreshTokenExpiresAt(): ?\DateTimeImmutable { return $this->refreshTokenExpiresAt; }
+
+    public function isBookie(): bool { return in_array('ROLE_BOOKIE', $this->getRoles(), true); }
+
+    // STRIDE: Spoofing (faux comptes) — un compte non vérifié ne peut pas miser.
+    public function isEmailVerified(): bool { return $this->emailVerifiedAt !== null; }
+
+    public function setEmailVerificationToken(string $hash, \DateTimeImmutable $expiresAt): void
+    {
+        $this->emailVerificationTokenHash = $hash;
+        $this->emailVerificationExpiresAt = $expiresAt;
+    }
+
+    public function getEmailVerificationTokenHash(): ?string { return $this->emailVerificationTokenHash; }
+    public function getEmailVerificationExpiresAt(): ?\DateTimeImmutable { return $this->emailVerificationExpiresAt; }
+
+    public function markEmailVerified(): void
+    {
+        $this->emailVerifiedAt = new \DateTimeImmutable();
+        // Usage unique : le jeton est détruit dès qu'il a servi.
+        $this->emailVerificationTokenHash = null;
+        $this->emailVerificationExpiresAt = null;
+    }
 }

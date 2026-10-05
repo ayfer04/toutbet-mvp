@@ -16,7 +16,7 @@ final class AuthControllerTest extends WebTestCase
 
     public function testUserCanRegisterAndPasswordIsNotReturned(): void
     {
-        $client = static::createClient();
+        $client = static::createClient([], ['REMOTE_ADDR' => '10.9.' . random_int(0, 255) . '.' . random_int(1, 254)]);
         $client->jsonRequest('POST', '/api/register', [
             'email' => 'alice@example.test',
             'password' => 'correct horse battery staple',
@@ -31,7 +31,7 @@ final class AuthControllerTest extends WebTestCase
 
     public function testDuplicateAccountIsRejected(): void
     {
-        $client = static::createClient();
+        $client = static::createClient([], ['REMOTE_ADDR' => '10.9.' . random_int(0, 255) . '.' . random_int(1, 254)]);
         $client->jsonRequest('POST', '/api/register', ['email' => 'duplicate@example.test', 'password' => 'password']);
         self::assertResponseStatusCodeSame(201);
 
@@ -41,7 +41,7 @@ final class AuthControllerTest extends WebTestCase
 
     public function testLoginReturnsShortLivedJwtAndRefreshToken(): void
     {
-        $client = static::createClient();
+        $client = static::createClient([], ['REMOTE_ADDR' => '10.9.' . random_int(0, 255) . '.' . random_int(1, 254)]);
         $client->jsonRequest('POST', '/api/register', ['email' => 'login@example.test', 'password' => 'password']);
         self::assertResponseStatusCodeSame(201);
 
@@ -61,7 +61,7 @@ final class AuthControllerTest extends WebTestCase
 
     public function testWrongPasswordDoesNotAuthenticate(): void
     {
-        $client = static::createClient();
+        $client = static::createClient([], ['REMOTE_ADDR' => '10.9.' . random_int(0, 255) . '.' . random_int(1, 254)]);
         $client->jsonRequest('POST', '/api/register', ['email' => 'wrong-password@example.test', 'password' => 'password']);
         $client->jsonRequest('POST', '/api/login', ['email' => 'wrong-password@example.test', 'password' => 'wrong']);
 
@@ -70,7 +70,7 @@ final class AuthControllerTest extends WebTestCase
 
     public function testRefreshTokenRotates(): void
     {
-        $client = static::createClient();
+        $client = static::createClient([], ['REMOTE_ADDR' => '10.9.' . random_int(0, 255) . '.' . random_int(1, 254)]);
         $client->jsonRequest('POST', '/api/register', ['email' => 'refresh@example.test', 'password' => 'password']);
         $client->jsonRequest('POST', '/api/login', ['email' => 'refresh@example.test', 'password' => 'password']);
         $first = json_decode($client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
@@ -86,7 +86,7 @@ final class AuthControllerTest extends WebTestCase
 
     public function testAuthenticatedApiRequiresBearerToken(): void
     {
-        $client = static::createClient();
+        $client = static::createClient([], ['REMOTE_ADDR' => '10.9.' . random_int(0, 255) . '.' . random_int(1, 254)]);
         $client->request('GET', '/api/protected-placeholder');
         self::assertResponseStatusCodeSame(401);
     }

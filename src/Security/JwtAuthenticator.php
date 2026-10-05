@@ -15,8 +15,9 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
 
-final class JwtAuthenticator extends AbstractAuthenticator
+final class JwtAuthenticator extends AbstractAuthenticator implements AuthenticationEntryPointInterface
 {
     public function __construct(private readonly JwtService $jwt, private readonly UserRepository $users) {}
 
@@ -46,6 +47,12 @@ final class JwtAuthenticator extends AbstractAuthenticator
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
+    {
+        return new JsonResponse(['error' => 'Authentication required.'], Response::HTTP_UNAUTHORIZED);
+    }
+
+    // Requête sans jeton sur une route protégée : 401 JSON générique (refus par défaut).
+    public function start(Request $request, ?AuthenticationException $authException = null): Response
     {
         return new JsonResponse(['error' => 'Authentication required.'], Response::HTTP_UNAUTHORIZED);
     }

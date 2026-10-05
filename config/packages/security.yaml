@@ -1,4 +1,8 @@
 security:
+  # STRIDE: Elevation of Privilege — hiérarchie minimale, aucun rôle admin exposé par l'API.
+  role_hierarchy:
+    ROLE_BOOKIE: ROLE_PARIEUR
+
   password_hashers:
     App\Entity\User:
       algorithm: argon2id
@@ -25,4 +29,6 @@ security:
     - { path: ^/api/register$, roles: PUBLIC_ACCESS }
     - { path: ^/api/login$, roles: PUBLIC_ACCESS }
     - { path: ^/api/refresh$, roles: PUBLIC_ACCESS }
+    - { path: ^/api/verify-email$, roles: PUBLIC_ACCESS }
+    - { path: ^/api/webhooks/payment$, roles: PUBLIC_ACCESS }
     - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }

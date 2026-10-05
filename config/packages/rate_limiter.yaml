@@ -4,3 +4,13 @@ framework:
       policy: fixed_window
       limit: 5
       interval: '1 minute'
+    # STRIDE: Spoofing (faux comptes) — inscriptions limitées par IP.
+    register:
+      policy: fixed_window
+      limit: 5
+      interval: '1 hour'
+    # STRIDE: Denial of Service — actions métier limitées par utilisateur.
+    bet_action:
+      policy: sliding_window
+      limit: 30
+      interval: '1 minute'

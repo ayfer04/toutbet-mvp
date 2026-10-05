@@ -79,3 +79,8 @@ justification écrite.
   Referrer-Policy.
 - CORS limité à l'origine du front. APP_DEBUG=0 en prod.
 - Secrets via variables d'environnement, .env.example sans vraies valeurs.
+
+### Faux comptes (décision humaine, ajoutée après la 1re génération)
+- Vérification email obligatoire avant de miser (lien à usage unique, 24 h)
+- Rate limiting sur /api/register (5 par IP et par heure)
+- Mise uniquement sur un pari auquel on est invité (invitation non révoquée)

@@ -6,3 +6,6 @@
 /var/
 .idea/
 .vscode/
+
+# Secrets locaux : ne jamais versionner (seuls .env.example et .env.test le sont).
+/.env

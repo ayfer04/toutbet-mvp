@@ -6,6 +6,37 @@ services:
     autowire: true
     autoconfigure: true
 
+  App\:
+    resource: '../src/'
+    exclude:
+      - '../src/Entity/'
+      - '../src/Kernel.php'
+      - '../src/Http/'
+      - '../src/Service/Uuid.php'
+      - '../src/Service/WagerRejected.php'
+
+  App\Controller\:
+    resource: '../src/Controller/'
+    tags: ['controller.service_arguments']
+
   App\Service\JwtService:
     arguments:
       $secret: '%app.jwt_secret%'
+
+  # Secrets lus uniquement depuis l'environnement, jamais en dur.
+  App\Payment\WebhookSignatureVerifier:
+    arguments:
+      $secret: '%env(PAYMENT_WEBHOOK_SECRET)%'
+
+  # Implémentations remplaçables (décision humaine avant la production) :
+  App\Payment\PaymentGateway: '@App\Payment\FakePaymentGateway'
+  App\Service\EmailVerificationSender: '@App\Service\InMemoryEmailVerificationSender'
+
+when@test:
+  services:
+    App\Service\InMemoryEmailVerificationSender:
+      public: true
+    App\Payment\WebhookSignatureVerifier:
+      public: true
+      arguments:
+        $secret: '%env(PAYMENT_WEBHOOK_SECRET)%'

@@ -10,7 +10,7 @@ final class AuthAbuseStoriesTest extends WebTestCase
 {
     public function testInvalidCredentialsCannotAuthenticate(): void
     {
-        $client = static::createClient();
+        $client = static::createClient([], ['REMOTE_ADDR' => '10.9.' . random_int(0, 255) . '.' . random_int(1, 254)]);
         $client->jsonRequest('POST', '/api/login', [
             'email' => 'victim@example.test',
             'password' => 'wrong',
@@ -22,7 +22,7 @@ final class AuthAbuseStoriesTest extends WebTestCase
 
     public function testTamperedBearerTokenCannotAuthenticate(): void
     {
-        $client = static::createClient();
+        $client = static::createClient([], ['REMOTE_ADDR' => '10.9.' . random_int(0, 255) . '.' . random_int(1, 254)]);
         $client->request('GET', '/api/protected-placeholder', server: [
             'HTTP_AUTHORIZATION' => 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.invalid.signature',
         ]);
@@ -33,7 +33,7 @@ final class AuthAbuseStoriesTest extends WebTestCase
 
     public function testLoginIsRateLimited(): void
     {
-        $client = static::createClient();
+        $client = static::createClient([], ['REMOTE_ADDR' => '10.9.' . random_int(0, 255) . '.' . random_int(1, 254)]);
         for ($i = 0; $i < 5; ++$i) {
             $client->jsonRequest('POST', '/api/login', [
                 'email' => 'nobody@example.test',

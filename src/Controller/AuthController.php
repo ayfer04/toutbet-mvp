@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use App\Service\EmailVerificationService;
 use App\Service\JwtService;
 use App\Service\RefreshTokenService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -26,7 +27,14 @@ final class AuthController
         UserRepository $users,
         UserPasswordHasherInterface $passwordHasher,
         EntityManagerInterface $entityManager,
+        RateLimiterFactory $registerLimiter,
+        EmailVerificationService $emailVerification,
     ): JsonResponse {
+        // STRIDE: Spoofing (faux comptes) / Denial of Service — 5 inscriptions par IP et par heure.
+        if (!$registerLimiter->create($request->getClientIp() ?? 'unknown')->consume(1)->isAccepted()) {
+            return new JsonResponse(['error' => 'Too many requests.'], JsonResponse::HTTP_TOO_MANY_REQUESTS);
+        }
+
         $data = json_decode($request->getContent(), true);
         if (!is_array($data)) {
             return new JsonResponse(['error' => 'Invalid JSON.'], JsonResponse::HTTP_BAD_REQUEST);
@@ -49,10 +57,31 @@ final class AuthController
         $userPasswordHash = $passwordHasher->hashPassword($user, $password);
         $user->setPasswordHash($userPasswordHash);
 
+        // STRIDE: Elevation of Privilege — le client ne choisit jamais ses rôles librement :
+        // seul un booléen est accepté, et il ne peut donner que ROLE_BOOKIE (jamais ROLE_ADMIN).
+        if (($data['bookie'] ?? false) === true) {
+            $user->setRoles(['ROLE_PARIEUR', 'ROLE_BOOKIE']);
+        }
+
         $entityManager->persist($user);
         $entityManager->flush();
+        $emailVerification->start($user);
 
         return new JsonResponse(['id' => $user->getId(), 'email' => $user->getEmail()], JsonResponse::HTTP_CREATED);
+    }
+
+    #[Route('/api/verify-email', name: 'api_verify_email', methods: ['POST'])]
+    public function verifyEmail(Request $request, EmailVerificationService $emailVerification): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $token = is_array($data) && is_string($data['token'] ?? null) ? $data['token'] : '';
+
+        // Jeton à usage unique, expirant après 24 h. Réponse identique pour tous les cas d'échec.
+        if (!$emailVerification->verify($token)) {
+            return new JsonResponse(['error' => 'Invalid or expired token.'], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        return new JsonResponse(['verified' => true]);
     }
 
     #[Route('/api/login', name: 'api_login', methods: ['POST'])]

@@ -1,12 +1,22 @@
 services:
+  api:
+    build: .
+    volumes:
+      - ./:/app
+    env_file: .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
   db:
     image: postgres:16
     environment:
       POSTGRES_DB: toutbet
       POSTGRES_USER: toutbet_app
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
-    ports:
-      - "5432:5432"
+    # Base non exposée sur l'hôte : seul le service api y accède (réseau interne Docker).
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:

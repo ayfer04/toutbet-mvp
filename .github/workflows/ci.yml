@@ -1,0 +1,56 @@
+name: CI sécurité
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: toutbet_test
+          POSTGRES_USER: toutbet_app
+          POSTGRES_PASSWORD: test-password
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U toutbet_app"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_pgsql, intl
+          coverage: none
+      - run: composer install --no-interaction --no-progress
+      - name: Migrations
+        run: php bin/console doctrine:migrations:migrate --no-interaction --env=test
+        env:
+          APP_ENV: test
+          APP_SECRET: test-secret
+          APP_JWT_SECRET: '01234567890123456789012345678901'
+          PAYMENT_WEBHOOK_SECRET: whsec_test_only_not_a_real_secret
+          FRONTEND_ORIGIN: https://localhost:5173
+          DATABASE_URL: postgresql://toutbet_app:test-password@127.0.0.1:5432/toutbet_test?serverVersion=16&charset=utf8
+      - name: Tests (abuse stories incluses)
+        run: vendor/bin/phpunit
+      - name: Analyse statique
+        run: vendor/bin/phpstan analyse --level=6 src --no-progress
+      - name: Audit des dépendances
+        run: composer audit
+
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
